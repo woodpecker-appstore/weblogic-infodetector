@@ -14,7 +14,7 @@ public class AllInfoDetector implements InfoDetectorPlugin {
         this.pluginHelper = infoDetecPluginCallbacks.getPluginHelper();
         this.infoDetecPluginCallbacks.setInfoDetectorPluginName("weblogic infodetector");
         this.infoDetecPluginCallbacks.setInfoDetectorPluginAuthor("c0ny1");
-        this.infoDetecPluginCallbacks.setInfoDetectorPluginVersion("0.1.0");
+        this.infoDetecPluginCallbacks.setInfoDetectorPluginVersion("0.2.0");
         this.infoDetecPluginCallbacks.setInfoDetectorPluginDescription("description");
         List<InfoDetector> infoDetecs = new ArrayList<InfoDetector>();
         infoDetecs.add(new WeblogicInfoDetectorPlugin());
