@@ -1,8 +1,8 @@
 package infodetec;
 
 import me.gv7.woodpecker.plugin.*;
-import net.dongliu.requests.RawResponse;
-import net.dongliu.requests.Requests;
+import me.gv7.woodpecker.requests.RawResponse;
+import me.gv7.woodpecker.requests.Requests;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -89,7 +89,7 @@ public class WeblogicInfoDetectorPlugin implements InfoDetector {
                 } else {
                     resultOutput.failPrintln(String.format("%s status_code:%d", tUrl, rawResp.getStatusCode()));
                 }
-            }catch (Exception e){
+            }catch (Throwable e){
                 resultOutput.errorPrintln(String.format("request %s erro:%s",wlsUrl, AllInfoDetector.pluginHelper.getThrowableInfo(e)));
             }
         }

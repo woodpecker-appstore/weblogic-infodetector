@@ -16,9 +16,9 @@
         </dependency>
 
         <dependency>
-            <groupId>net.dongliu</groupId>
-            <artifactId>requests</artifactId>
-            <version>5.0.8</version>
+            <groupId>me.gv7.woodpecker</groupId>
+            <artifactId>woodpecker-requests</artifactId>
+            <version>0.2.0</version>
         </dependency>
     </dependencies>
     
