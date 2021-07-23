@@ -7,6 +7,8 @@ import me.gv7.woodpecker.requests.Requests;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static infodetec.WeblogicInfoUtil.isT3FilterEnable;
+
 public class WeblogicInfoDetectorPlugin implements InfoDetector {
     public static String weblogic_version;
     public static boolean isIIOPOpen = false;
@@ -52,8 +54,12 @@ public class WeblogicInfoDetectorPlugin implements InfoDetector {
         try {
             if (WeblogicInfoUtil.checkT3(targetURL)) {
                 isT3Open = true;
-                resultOutput.successPrintln("T3 is open");
-                infos.put("t3","true");
+                if(isT3FilterEnable(targetURL)){
+                    resultOutput.errorPrintln("T3 is open,but filter enable");
+                }else{
+                    resultOutput.successPrintln("T3 is open,and filter disable");
+                    infos.put("t3","true");
+                }
             }else{
                 resultOutput.failPrintln("T3 is close");
             }

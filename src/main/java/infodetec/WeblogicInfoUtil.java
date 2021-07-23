@@ -208,6 +208,8 @@ public class WeblogicInfoUtil {
     }
 
 
+
+
     public static boolean checkT3(String target) throws Exception {
         Socket socket = getSocket(target);
         try {
@@ -215,6 +217,10 @@ public class WeblogicInfoUtil {
             String rsp = new String(rspByte);
             if (rsp.contains("<title>") || rsp.contains("<html>") || rsp.contains("400") || rsp.contains("403")) {
                 return false;
+            }
+
+            if(rsp.contains("Connection rejected") && rsp.contains("filter blocked Socket") && rsp.contains("weblogic.security.net.FilterException") && rsp.contains("Security:090220")){
+
             }
         } catch (Exception e) {
             return false;
@@ -224,6 +230,22 @@ public class WeblogicInfoUtil {
         return true;
     }
 
+    public static boolean isT3FilterEnable(String target) throws Exception {
+        Socket socket = getSocket(target);
+        try {
+            byte[] rspByte = send(VERSION_T3, socket);
+            String rsp = new String(rspByte);
+
+            if((rsp.contains("Connection rejected") || rsp.contains("filter blocked Socket")) && rsp.contains("weblogic.security.net.FilterException") && rsp.contains("Security:090220")){
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        } finally {
+            socket.close();
+        }
+        return false;
+    }
 
     public static byte[] send(String msg, Socket socket) throws Exception {
         OutputStream out = socket.getOutputStream();
