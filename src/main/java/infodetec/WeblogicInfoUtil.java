@@ -180,7 +180,18 @@ public class WeblogicInfoUtil {
 
     public static Socket getSocket(String target) throws Exception {
         URL url = new URL(target);
-        int port = (url.getPort() == -1) ? 80 : url.getPort();
+        int port = 0;
+
+        if(url.getPort() != -1){
+            port = url.getPort();
+        }else if(target.startsWith("https://")){
+            port = 443;
+        }else if(target.startsWith("http://")){
+            port = 80;
+        }else{
+            throw new Exception("unkown port");
+        }
+
         String host = url.getHost();
         SocketAddress socketAddress = new InetSocketAddress(host, port);
         Socket socket = new Socket();
@@ -218,11 +229,8 @@ public class WeblogicInfoUtil {
             if (rsp.contains("<title>") || rsp.contains("<html>") || rsp.contains("400") || rsp.contains("403")) {
                 return false;
             }
-
-            if(rsp.contains("Connection rejected") && rsp.contains("filter blocked Socket") && rsp.contains("weblogic.security.net.FilterException") && rsp.contains("Security:090220")){
-
-            }
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         } finally {
             socket.close();
@@ -269,4 +277,5 @@ public class WeblogicInfoUtil {
         }
         return bytes;
     }
+
 }
