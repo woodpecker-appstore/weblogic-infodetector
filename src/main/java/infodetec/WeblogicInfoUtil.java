@@ -203,7 +203,7 @@ public class WeblogicInfoUtil {
     public static boolean checkIIOP(String target) throws Exception{
         Socket socket = getSocket(target);
         try {
-            byte[] rspByte = send("47494f50010200030000001700000002000000000000000b4e616d6553657276696365", socket);;
+            byte[] rspByte = send("47494f50010200030000001700000002000000000000000b4e616d6553657276696365", socket);
             String rsp = new String(rspByte);
             if (!rsp.contains("NamingContextAny") && !rsp.contains("weblogic") && !rsp.contains("corba")) {
                 return false;
@@ -262,7 +262,12 @@ public class WeblogicInfoUtil {
         out.flush();
         byte[] bytes = new byte[4096];
         int length = is.read(bytes);
-        return Arrays.copyOfRange(bytes, 0, length);
+        if(length == -1){
+            return Arrays.copyOfRange(bytes, 0, length);
+        }else{
+            return new byte[0];
+        }
+
     }
 
     public static byte[] hexStrToBinaryStr(String hexString) {
@@ -276,6 +281,13 @@ public class WeblogicInfoUtil {
             index += 2;
         }
         return bytes;
+    }
+
+    public static void main(String[] args) throws Exception {
+        //checkIIOP("http://103.142.154.27/");
+        Socket socket = getSocket("http://103.142.154.27/");
+        byte[] rspByte = send("47494f500102000300000017000000020000000000", socket);
+        System.out.println(new String(rspByte));
     }
 
 }
