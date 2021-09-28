@@ -57,7 +57,7 @@ public class WeblogicInfoDetectorPlugin implements InfoDetector {
                 if(isT3FilterEnable(targetURL)){
                     resultOutput.errorPrintln("T3 is open,but filter enable");
                 }else{
-                    resultOutput.successPrintln("T3 is open,and filter disable");
+                    resultOutput.successPrintln("T3 is open");
                     infos.put("t3","true");
                 }
             }else{

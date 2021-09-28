@@ -1,10 +1,7 @@
 package infodetec;
 
 import javax.naming.Context;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.*;
@@ -260,14 +257,19 @@ public class WeblogicInfoUtil {
         InputStream is = socket.getInputStream();
         out.write(hexStrToBinaryStr(msg));
         out.flush();
-        byte[] bytes = new byte[4096];
-        int length = is.read(bytes);
-        if(length == -1){
-            return Arrays.copyOfRange(bytes, 0, length);
-        }else{
-            return new byte[0];
+        byte[] buffer = new byte[1];
+//        int length = is.read(bytes);
+//        if(length == -1){
+//            return Arrays.copyOfRange(bytes, 0, length);
+//        }else{
+//            return new byte[0];
+//        }
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        while (is.read(buffer) != -1){
+            outputStream.write(buffer);
+            outputStream.flush();
         }
-
+        return outputStream.toByteArray();
     }
 
     public static byte[] hexStrToBinaryStr(String hexString) {
@@ -284,10 +286,7 @@ public class WeblogicInfoUtil {
     }
 
     public static void main(String[] args) throws Exception {
-        //checkIIOP("http://103.142.154.27/");
-        Socket socket = getSocket("http://103.142.154.27/");
-        byte[] rspByte = send("47494f500102000300000017000000020000000000", socket);
-        System.out.println(new String(rspByte));
+        checkIIOP("http://220.182.2.171:8167/");
     }
 
 }
