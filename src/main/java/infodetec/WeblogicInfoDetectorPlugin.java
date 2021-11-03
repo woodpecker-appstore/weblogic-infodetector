@@ -4,10 +4,11 @@ import me.gv7.woodpecker.plugin.*;
 import me.gv7.woodpecker.requests.RawResponse;
 import me.gv7.woodpecker.requests.Requests;
 
+import java.net.Socket;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static infodetec.WeblogicInfoUtil.isT3FilterEnable;
+
 
 public class WeblogicInfoDetectorPlugin implements InfoDetector {
     public static String weblogic_version;
@@ -37,12 +38,17 @@ public class WeblogicInfoDetectorPlugin implements InfoDetector {
     }
 
     public LinkedHashMap<String, String> doDetect(ITarget target, Map<String, Object> map, IResultOutput resultOutput) throws Throwable {
-        LinkedHashMap<String,String> infos = new LinkedHashMap<String, String>();
-
         String targetURL = target.getAddress();
+        String host = target.getHost();
+        int port = target.getPort();
+        boolean isSSL = false;
+        if(target.getProtocol().equalsIgnoreCase("https")){
+            isSSL = true;
+        }
+
+        LinkedHashMap<String,String> infos = new LinkedHashMap<String, String>();
         // 探测版本
         weblogic_version = WeblogicInfoUtil.getWeblogicVersion(targetURL);
-
         if(weblogic_version != null){
             infos.put("version",weblogic_version);
             resultOutput.successPrintln("version: " + weblogic_version);
@@ -52,18 +58,23 @@ public class WeblogicInfoDetectorPlugin implements InfoDetector {
 
         // 探测协议
         try {
-            if (WeblogicInfoUtil.checkT3(targetURL)) {
+            String t3HelloInfo = WeblogicInfoUtil.getT3HelloInfo(host,port,isSSL);
+            if (t3HelloInfo.startsWith("HELO:") && t3HelloInfo.contains("AS:") && t3HelloInfo.contains("HL:")) {
                 isT3Open = true;
-                if(isT3FilterEnable(targetURL)){
-                    resultOutput.errorPrintln("T3 is open,but filter enable");
-                }else{
-                    resultOutput.successPrintln("T3 is open");
-                    infos.put("t3","true");
-                }
+                resultOutput.successPrintln("T3 is open");
+                infos.put("t3","true");
+            }else if((t3HelloInfo.contains("Connection rejected")
+                    || t3HelloInfo.contains("filter blocked Socket"))
+                    && t3HelloInfo.contains("weblogic.security.net.FilterException")
+                    && t3HelloInfo.contains("Security:090220")){
+                isT3Open = false;
+                resultOutput.errorPrintln("T3 is open,but filter enable");
             }else{
+                isT3Open = false;
                 resultOutput.failPrintln("T3 is close");
             }
-            if (WeblogicInfoUtil.checkIIOP(targetURL)) {
+
+            if (WeblogicInfoUtil.checkIIOP(host,port,isSSL)) {
                 isIIOPOpen = true;
                 resultOutput.successPrintln("IIOP is open");
                 infos.put("iiop","true");
