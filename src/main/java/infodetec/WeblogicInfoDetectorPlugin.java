@@ -63,10 +63,7 @@ public class WeblogicInfoDetectorPlugin implements InfoDetector {
                 isT3Open = true;
                 resultOutput.successPrintln("T3 is open");
                 infos.put("t3","true");
-            }else if((t3HelloInfo.contains("Connection rejected")
-                    || t3HelloInfo.contains("filter blocked Socket"))
-                    && t3HelloInfo.contains("weblogic.security.net.FilterException")
-                    && t3HelloInfo.contains("Security:090220")){
+            }else if(WeblogicInfoUtil.isFilterEnable(t3HelloInfo)){
                 isT3Open = false;
                 resultOutput.errorPrintln("T3 is open,but filter enable");
             }else{
@@ -74,12 +71,19 @@ public class WeblogicInfoDetectorPlugin implements InfoDetector {
                 resultOutput.failPrintln("T3 is close");
             }
 
-            if (WeblogicInfoUtil.checkIIOP(host,port,isSSL)) {
+            String iiopHelloInfo = WeblogicInfoUtil.getIIOPHelloInfo(host,port,isSSL);
+            if(iiopHelloInfo == null){
+                isIIOPOpen = false;
+                resultOutput.failPrintln("IIOP is close");
+            }else if(WeblogicInfoUtil.isFilterEnable(iiopHelloInfo)){
+                isIIOPOpen = false;
+                resultOutput.errorPrintln("IIOP is open,but filter enable");
+            }else if(!iiopHelloInfo.contains("NamingContextAny") && !iiopHelloInfo.contains("weblogic") && !iiopHelloInfo.contains("corba")){
+                isIIOPOpen = false;
+                resultOutput.failPrintln("IIOP is close");
+            } else {
                 isIIOPOpen = true;
                 resultOutput.successPrintln("IIOP is open");
-                infos.put("iiop","true");
-            }else{
-                resultOutput.failPrintln("IIOP is close");
             }
         }catch (Exception e){
             e.printStackTrace();

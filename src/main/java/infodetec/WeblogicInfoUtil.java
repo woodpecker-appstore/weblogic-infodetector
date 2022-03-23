@@ -1,5 +1,8 @@
 package infodetec;
 
+import net.dongliu.commons.Hexes;
+import sun.misc.BASE64Encoder;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import java.io.*;
@@ -112,23 +115,18 @@ public class WeblogicInfoUtil {
         return socket;
     }
 
-
-    public static boolean checkIIOP(String host,int port,boolean isSSL) throws Exception{
+    public static String getIIOPHelloInfo(String host,int port,boolean isSSL) throws Exception {
+        String hello = null;
         Socket socket = initSocket(host,port,isSSL);
         try {
             byte[] rspByte = send(hexStrToBinaryStr("47494f50010200030000001700000002000000000000000b4e616d6553657276696365"), socket);
-            String rsp = new String(rspByte);
-            if (!rsp.contains("NamingContextAny") && !rsp.contains("weblogic") && !rsp.contains("corba")) {
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            hello = new String(rspByte);
+        } catch (Throwable t) {
+            t.printStackTrace();
         } finally {
             socket.close();
         }
-
-        return true;
+        return hello;
     }
 
     public static String getT3HelloInfo(String host,int port,boolean isSSL) throws Exception {
@@ -139,7 +137,7 @@ public class WeblogicInfoUtil {
             byte[] t3Response = WeblogicInfoUtil.send(str.getBytes(), socket);
             hello = new String(t3Response);
         } catch (Throwable t){
-
+            t.printStackTrace();
         }finally {
             socket.close();
         }
@@ -231,6 +229,21 @@ public class WeblogicInfoUtil {
         return bytes;
     }
 
-
+    /**
+     * 检测Weblogic过滤器状态
+     * @param helloMsg hello返回包
+     * @return 过滤器是否开启
+     */
+    public static boolean isFilterEnable(String helloMsg){
+        if(
+            (helloMsg.contains("Connection rejected") || helloMsg.contains("filter blocked Socket"))
+            && helloMsg.contains("weblogic.security.net.FilterException")
+            && helloMsg.contains("Security:090220")
+        ){
+            return true;
+        }else{
+            return false;
+        }
+    }
 
 }
